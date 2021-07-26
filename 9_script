@@ -1,0 +1,221 @@
+drop TABLE ASTEPANENKO.DW_TIME
+CREATE TABLE ASTEPANENKO.DW_TIME 
+(  date_id                 date                         not null,
+   date_full               varchar(30)                    not null,
+   date_is_holiday         number                         not null,
+   day_id                  number                         not null,
+   day_of_week             varchar(20)                    not null,
+   day_of_week_name        varchar2(20)                   not null,
+   day_of_month_number     number                         not null,
+   day_of_year_number      number                         not null,
+   week_id                 number                         not null,
+   week_number_of_month    number                         not null,
+   week_number_of_year     number                         not null,
+   week_first_day          date                           not null,
+   week_last_day           date                           not null,
+   month_id                number                         not null,
+   month_name              varchar2(20)                   not null,
+   month_number_of_year    number                         not null,
+   quarter_id              number                         not null,
+   quarter_desc            varchar(30)                    not null,
+   quarter_number_of_year  number                         not null,
+   quarter_start_dt        date                           not null,
+   quarter_end_dt          date                           not null,
+   year_id                 number                         not null,
+   year_fd                 date                           not null,
+   year_number             date                           not null )
+    PARTITION BY RANGE (date_id) 
+    (
+    PARTITION part_1 VALUES LESS THAN (to_date('15/01/2005','dd/mm/yyyy')),
+    PARTITION part_2 VALUES LESS THAN (to_date('20/06/2005','dd,mm,yyyy')),
+    PARTITION part_3 VALUES LESS THAN (to_date('01/11/2005','dd/mm/yyyy')) );
+    
+
+
+alter table DW_TIME merge partitions part_2, part_3 into partition part_2_new ;
+
+alter table DW_TIME move partition part_2_new tablespace lab_9;
+
+alter table DW_TIME split partition part_2_new at (to_date('25/08/2005','dd/mm/yyyy')) into(partition part_2 , partition part_3);
+
+alter table DW_TIME truncate partition part_3;
+
+alter table DW_TIME drop partition part_3;
+
+
+
+
+CREATE TABLE ASTEPANENKO.DW_TIME 
+   (	date_id                 date                         not null,
+   date_full               varchar(30)                    not null,
+   date_is_holiday         number                         not null,
+   day_id                  number                         not null,
+   day_of_week             varchar(20)                    not null,
+   day_of_week_name        varchar2(20)                   not null,
+   day_of_month_number     number                         not null,
+   day_of_year_number      number                         not null,
+   week_id                 number                         not null,
+   week_number_of_month    number                         not null,
+   week_number_of_year     number                         not null,
+   week_first_day          date                           not null,
+   week_last_day           date                           not null,
+   month_id                number                         not null,
+   month_name              varchar2(20)                   not null,
+   month_number_of_year    number                         not null,
+   quarter_id              number                         not null,
+   quarter_desc            varchar(30)                    not null,
+   quarter_number_of_year  number                         not null,
+   quarter_start_dt        date                           not null,
+   quarter_end_dt          date                           not null,
+   year_id                 number                         not null,
+   year_fd                 date                           not null,
+   year_number             date                           not null )
+    PARTITION BY RANGE (date_id) 
+    INTERVAL (NUMTOYMINTERVAL(1,'MONTH'))
+    (
+    PARTITION part_1 VALUES LESS THAN (to_date('15/01/2005','dd/mm/yyyy')),
+    PARTITION part_2 VALUES LESS THAN (to_date('20/06/2005','dd,mm,yyyy')),
+    PARTITION part_3 VALUES LESS THAN (to_date('01/11/2005','dd/mm/yyyy')) );
+    
+
+
+alter table DW_TIME merge partitions part_2, part_3 into partition part_2_new ;
+
+alter table DW_TIME move partition part_2_new tablespace lab_9;
+
+alter table DW_TIME split partition part_2_new at (to_date('25/08/2005','dd/mm/yyyy')) into(partition part_2 , partition part_3);
+
+alter table DW_TIME truncate partition part_3;
+
+alter table DW_TIME drop partition part_3;
+
+
+alter table DW_TIME add partition hash_part tablespace lab_9;
+
+
+
+CREATE TABLE ASTEPANENKO.DW_TIME 
+   (	date_id                 date                         not null,
+   date_full               varchar(30)                    not null,
+   date_is_holiday         number                         not null,
+   day_id                  number                         not null,
+   day_of_week             varchar(20)                    not null,
+   day_of_week_name        varchar2(20)                   not null,
+   day_of_month_number     number                         not null,
+   day_of_year_number      number                         not null,
+   week_id                 number                         not null,
+   week_number_of_month    number                         not null,
+   week_number_of_year     number                         not null,
+   week_first_day          date                           not null,
+   week_last_day           date                           not null,
+   month_id                number                         not null,
+   month_name              varchar2(20)                   not null,
+   month_number_of_year    number                         not null,
+   quarter_id              number                         not null,
+   quarter_desc            varchar(30)                    not null,
+   quarter_number_of_year  number                         not null,
+   quarter_start_dt        date                           not null,
+   quarter_end_dt          date                           not null,
+   year_id                 number                         not null,
+   year_fd                 date                           not null,
+   year_number             date                           not null )
+   PARTITION BY HASH (month_number_of_year) partitions 4;
+    
+
+
+
+alter table DW_TIME coalesce partition;
+
+alter table DW_TIME truncate partition hash_part;
+
+
+
+CREATE TABLE ASTEPANENKO.DW_TIME 
+   (	date_id                 date                         not null,
+   date_full               varchar(30)                    not null,
+   date_is_holiday         number                         not null,
+   day_id                  number                         not null,
+   day_of_week             varchar(30)                    not null,
+   day_of_week_name        varchar2(20)                   not null,
+   day_of_month_number     number                         not null,
+   day_of_year_number      number                         not null,
+   week_id                 number                         not null,
+   week_number_of_month    number                         not null,
+   week_number_of_year     number                         not null,
+   week_first_day          date                           not null,
+   week_last_day           date                           not null,
+   month_id                number                         not null,
+   month_name              varchar2(20)                   not null,
+   month_number_of_year    number                         not null,
+   quarter_id              number                         not null,
+   quarter_desc            varchar(30)                    not null,
+   quarter_number_of_year  number                         not null,
+   quarter_start_dt        date                           not null,
+   quarter_end_dt          date                           not null,
+   year_id                 number                         not null,
+   year_fd                 date                           not null,
+   year_number             date                           not null )
+    PARTITION BY LIST(day_of_week)(
+    PARTITION PART_1 VALUES ('понедельник','вторник'),
+    PARTITION PART_2 VALUES ('среда','четверг' ),
+    PARTITION PART_3 VALUES ('пятница','суббота','воскресенье') );
+    
+
+
+alter table DW_TIME merge partitions part_2, part_3 into partition part_2_new ;
+
+alter table DW_TIME move partition part_2_new tablespace lab_9;
+
+alter table DW_TIME split partition part_2_new VALUES('пятница','суббота','воскресенье') into(partition part_2 , partition part_3);
+
+alter table DW_TIME truncate partition part_3;
+
+alter table DW_TIME drop partition part_3;
+
+
+
+
+
+CREATE TABLE ASTEPANENKO.DW_TIME 
+   (	date_id                 date                         not null,
+   date_full               varchar(30)                    not null,
+   date_is_holiday         number                         not null,
+   day_id                  number                         not null,
+   day_of_week             varchar(30)                    not null,
+   day_of_week_name        varchar2(20)                   not null,
+   day_of_month_number     number                         not null,
+   day_of_year_number      number                         not null,
+   week_id                 number                         not null,
+   week_number_of_month    number                         not null,
+   week_number_of_year     number                         not null,
+   week_first_day          date                           not null,
+   week_last_day           date                           not null,
+   month_id                number                         not null,
+   month_name              varchar2(20)                   not null,
+   month_number_of_year    number                         not null,
+   quarter_id              number                         not null,
+   quarter_desc            varchar(30)                    not null,
+   quarter_number_of_year  number                         not null,
+   quarter_start_dt        date                           not null,
+   quarter_end_dt          date                           not null,
+   year_id                 number                         not null,
+   year_fd                 date                           not null,
+   year_number             date                           not null,
+    CONSTRAINT PK_DW_TIME PRIMARY KEY (date_id) )
+    
+    PARTITION BY RANGE (week_last_day) 
+    (
+    PARTITION part_1 VALUES LESS THAN (to_date('15/05/2005','dd/mm/yyyy')),
+    PARTITION part_2 VALUES LESS THAN (to_date('20/08/2005','dd,mm,yyyy')),
+    PARTITION part_3 VALUES LESS THAN (to_date('11/11/2005','dd/mm/yyyy')) );
+
+CREATE TABLE DW_NOTES(
+date_id      date           NOT NULL,
+notes        varchar(50)    NOT NULL,
+constraint FK_DW_NOTES foreign key (date_id) REFERENCES DW_TIME (date_id))
+PARTITION BY REFERENCE (FK_DW_NOTES);
+
+
+alter table DW_NOTES move partition part_2 tablespace lab_9;
+
+alter table DW_NOTES truncate partition part_2;
