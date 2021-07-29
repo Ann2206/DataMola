@@ -51,10 +51,10 @@ create or replace function RandomString(p_Characters varchar2, p_length number)
                                           CURRENT_COUNTRY,
                                           DEST_COUNTRY)
  SELECT ROWNUM,
- DBMS_RANDOM.value(1,20),
- DBMS_RANDOM.value(1,100),
- DBMS_RANDOM.STRING('u', DBMS_RANDOM.VALUE (1,20)),
- DBMS_RANDOM.STRING('u', DBMS_RANDOM.VALUE (1,20))
+ ROUND(DBMS_RANDOM.value(1,20),0),
+ ROUND(DBMS_RANDOM.value(1,100),1),
+ DBMS_RANDOM.STRING('u', DBMS_RANDOM.VALUE (3,15)),
+ DBMS_RANDOM.STRING('u', DBMS_RANDOM.VALUE (3,15))
  FROM DUAL
  CONNECT BY LEVEL <= 100000;
  
