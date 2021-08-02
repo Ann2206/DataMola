@@ -1,0 +1,119 @@
+SELECT * FROM SA_TNX_SALES_USER.SA_TNX_SALES;
+
+
+
+VARIABLE n_all_data NUMBER;
+VARIABLE n_customer NUMBER;
+VARIABLE n_tour_oper NUMBER;
+VARIABLE n_summary NUMBER;
+BEGIN
+ -- set values to 0 to disable
+ :n_all_data := 0; -- 1 to enable
+ :n_customer := 2; -- 2 to enable
+ :n_tour_oper  := 0; -- 3 to enable
+ :n_summary  := 4; -- 4 to enable
+END;
+/
+
+SET AUTOTRAcE ON;
+
+SELECT off.offer_desc offer
+       , decode(GROUPING(tour.tour_oper_desc),1,'ALL TOUR OPERATORS',tour.tour_oper_desc) tour_oper
+       , decode(GROUPING(cus.customer_desc),1,'ALL CUSTOMERS',cus.customer_desc) customer
+       , d.day_of_year_number day
+       , SUM(sal.sales_amount) sales_amount
+  FROM sa_tnx_sales_user.sa_tnx_sales sal
+       , DIM_DATE d
+       , sa_tour_oper_user.sa_tour_oper tour
+       , sa_customer_user.sa_customer cus
+       , sa_offer_user.sa_offer off
+ WHERE sal.date_id = d.date_key 
+   AND sal.tour_oper_id = tour.tour_oper_id 
+   AND sal.offer_id = off.offer_id 
+   AND sal.customer_id = cus.customer_id 
+   AND d.year_number = 2020 
+   AND d.DAY_OF_YEAR_NUMBER BETWEEN 1 AND 365
+ GROUP BY d.DAY_OF_YEAR_NUMBER
+          , off.offer_desc
+          , CUBE(tour.tour_oper_desc, cus.customer_desc)
+HAVING GROUPING_ID(tour.tour_oper_desc,cus.customer_desc)+1 IN(:n_all_data,:n_customer,:n_tour_oper,:n_summary)
+ ORDER BY 4, 1, 2, 3;
+ 
+ 
+ 
+ SELECT * FROM sa_tnx_sales_user.sa_tnx_sales;
+  SELECT * FROM DIM_DATE;
+ SELECT * FROM sa_tour_oper_user.sa_tour_oper;
+  SELECT * FROM sa_customer_user.sa_customer;
+  SELECT * FROM sa_offer_user.sa_offer;
+ 
+ 
+ 
+ 
+ 
+ SET AUTOTRAcE ON;
+ 
+ SELECT off.offer_desc offer
+        , decode(GROUPING(tour.tour_oper_desc),1,'ALL cOMPANIES',tour.tour_oper_desc) tour_oper
+        , decode(GROUPING(cus.customer_desc),1,'ALL CUSTOMERS',cus.customer_desc) customer
+        , d.month_number_of_year month
+        , SUM(sal.sales_amount) sales_amount
+   FROM sa_tnx_sales_user.sa_tnx_sales sal
+        , DIM_DATE d
+        , sa_tour_oper_user.sa_tour_oper tour
+        , sa_customer_user.sa_customer cus
+        , sa_offer_user.sa_offer off
+  WHERE sal.date_id = d.date_key 
+    AND sal.tour_oper_id = tour.tour_oper_id 
+    AND sal.offer_id = off.offer_id 
+    AND sal.customer_id = cus.customer_id 
+    AND d.year_number = 2020 
+    AND d.month_number_of_year BETWEEN 1 AND 13
+  GROUP BY d.month_number_of_year
+           , off.offer_desc
+           , ROLLUP(tour.tour_oper_desc, cus.customer_desc)
+ HAVING GROUPING_ID(tour.tour_oper_desc,cus.customer_desc)+1 IN(:n_all_data,:n_customer,:n_tour_oper,:n_summary)
+  ORDER BY 4, 1, 2, 3;
+ 
+ 
+SET AUTOTRAcE ON;
+SELECT 
+ (CASE
+ WHEN ((GROUPING(d.year_number)=0 )
+   AND (GROUPING(d.date_qtr_number_of_yr)=1 ))
+  THEN (to_char(d.year_number) || '_0')
+  WHEN ((GROUPING(d.date_qtr_number_of_yr)=0 )
+   AND (GROUPINg(d.month_number_of_year)=1 ))
+  THEN (to_char(d.date_qtr_number_of_yr) || '_1')
+  WHEN ((GROUPING(d.month_number_of_year)=0)
+   AND (GROUPING(d.day_of_year_number)=1 ))
+  THEN (to_char(d.month_number_of_year) || '_2')
+  ELSE (to_char(d.day_of_year_number) || '_3')
+   END) hierarchical_time
+        , d.year_number year
+        , d.date_qtr_number_of_yr quarter
+        , d.month_number_of_year month
+        , d.day_of_year_number day
+        , GROUPING_Id(d.year_number
+                      , d.date_qtr_number_of_yr
+                      , d.month_number_of_year
+                      , d.day_of_year_number) gid_t
+                      , off.offer_transp_desc offer_transp
+                      , decode(GROUPING(tour.tour_oper_desc),1,'ALL cOMPANIES',tour.tour_oper_desc) tour_oper
+                      , decode(GROUPING(cus.customer_desc),1,'ALL cUSTOMERS',cus.customer_desc) customer
+                      , SUM(sal.sales_amount) sales_amount
+  FROM sa_tnx_sales_user.sa_tnx_sales sal
+       , DIM_DATE d
+       , sa_tour_oper_user.sa_tour_oper tour
+       , sa_customer_user.sa_customer cus
+       , SA_OFFER_USER.sa_offer off
+ WHERE sal.date_id = d.date_key 
+   AND sal.tour_oper_id = tour.tour_oper_id 
+   AND sal.offer_id = off.offer_id 
+   AND sal.customer_id = cus.customer_id
+ GROUP BY off.offer_transp_desc
+          , ROLLUP(tour.tour_oper_desc, cus.customer_desc)
+          , ROLLUP(d.year_number
+                   , d.date_qtr_number_of_yr
+                   , d.month_number_of_year
+                   , d.day_of_year_number);
