@@ -14,7 +14,7 @@ SELECT DISTINCT tour_oper_id
                     , date_id 
             ORDER BY sales_price DESC
         ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING)
-                  AS "HIGHEST_SALES_DOLLARS"
+                  AS "HIGHEST_SALES_PRICE"
   FROM ts_dw_data_user.dw_sales
  ORDER BY tour_oper_id, location_id, date_id;
 
@@ -28,7 +28,7 @@ SELECT DISTINCT offer_sur_id
                 , LAST_VALUE(sales_price) OVER 
                 (PARTITION BY offer_sur_id ORDER BY sales_price DESC
                 ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING)
-                AS "LOW_SALES_DOLLARS"
+                AS "LOW_SALES_PRICE"
   FROM ts_dw_data_user.dw_sales
  ORDER BY offer_sur_id;
 
@@ -72,7 +72,7 @@ SELECT DISTINCT location_id
                 , MAX(sales_price)
   OVER (PARTITION BY  location_id ORDER BY sales_price DESC
        ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING)
-       AS "MAX_SALES_DOLLARS"
+       AS "MAX_SALES_PRICE"
                 , MIN(sales_amount)
   OVER (PARTITION BY location_id ORDER BY sales_amount DESC
        ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING)
@@ -80,7 +80,7 @@ SELECT DISTINCT location_id
                 , MIN(sales_price)
   OVER (PARTITION BY location_id ORDER BY sales_price DESC
        ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING)
-       AS "MIN_SALES_DOLLARS"
+       AS "MIN_SALES_PRICE"
                 , ROUND(AVG(sales_amount)
   OVER (PARTITION BY location_id ORDER BY sales_amount DESC
        ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING), 0)
@@ -88,6 +88,6 @@ SELECT DISTINCT location_id
                 , ROUND(AVG(sales_price)
   OVER (PARTITION BY location_id ORDER BY sales_price DESC
        ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING),0)
-       AS "AVG_SALES_DOLLARS"
+       AS "AVG_SALES_PRICE"
   FROM ts_dw_data_user.dw_sales
  ORDER BY location_id;
